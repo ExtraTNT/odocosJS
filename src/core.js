@@ -56,7 +56,7 @@ const Left = x => f => _ => f(x);
 const Right = y => _ => g => g(y);
 
 /**
- * Eliminiator for Either.
+ * Eliminator for Either.
  * @param {function} e - The Either instance (Left or Right).
  * @param {function} l - Handler for Left case.
  * @param {function} r - Handler for Right case.
