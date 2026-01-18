@@ -100,8 +100,10 @@ const compose = (...fs) => x => fs.reduceRight((v, f) => f(v), x);
  * @returns {function} The curried function.
  * @example curry((a, b) => a + b)(1)(2) // 3
  */
-const curry = (f, arity = f.length) =>
-  g = (...args) => args.length >= arity?
-    f(...args)
+const curry = (f, arity = f.length) => {
+  const g = (...args) => args.length >= arity
+    ? f(...args)
     : (...moreArgs) =>
       g(...args, ...moreArgs);
+  return g;
+};
