@@ -107,3 +107,20 @@ const curry = (f, arity = f.length) => {
       g(...args, ...moreArgs);
   return g;
 };
+
+/**
+ * flip. Takes a function of first two arguments and flips them.
+ * @param {function} f - The function to flip (a -> b -> c).
+ * @returns {function} The flipped function (b -> a -> c).
+ * @example flip(sub)(10)(5) // 5 - 10 = -5
+ */
+const flip = f => a => b => f(b)(a);
+
+/**
+ * toMaybe. Converts a value to a Maybe type.
+ * @param {*} x value to convert
+ * @returns Maybe Just(x) if x is not null, undefined, NaN or Nothing; otherwise Nothing.
+ * @example toMaybe(5) // Just(5)
+ * @example toMaybe(null) // Nothing
+ */
+const toMaybe = x => x === null || x === undefined || Number.isNaN(x) || x === Nothing ? Nothing : Just(x);
