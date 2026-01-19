@@ -7,6 +7,16 @@
 const id = x => x;
 
 /**
+ * Y combinator for anonymous recursion.
+ * @param {function} f - The function to enable recursion for.
+ * @returns {function} A recursive version of f.
+ * @example
+ * const id2 = M(id) // id2 is a recursive identity function
+ * id2 (id2) (id(5)) // 5
+ */
+const M = f => f(f);
+
+/**
  * Constant function. Returns a function that ignores its argument and returns x.
  * @param {*} x - The value to return.
  * @returns {function} A function that returns x.
@@ -100,8 +110,8 @@ const compose = (...fs) => x => fs.reduceRight((v, f) => f(v), x);
  * @returns {function} The curried function.
  * @example curry((a, b) => a + b)(1)(2) // 3
  */
-const curry = (f, arity = f.length) => {
-  const g = (...args) => args.length >= arity
+const curry = f => {
+  const g = (...args) => args.length >= f.length
     ? f(...args)
     : (...moreArgs) =>
       g(...args, ...moreArgs);

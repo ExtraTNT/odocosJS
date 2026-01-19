@@ -37,7 +37,7 @@ if [ ! -f "$TEST_DIR/${NAME}Test.js" ]; then
 const ok = [];
 
 // Example test
-ok.push(eq(1)(1));
+ok.push(assertEq(1)(1));
 
 printReport(ok);
 EOF

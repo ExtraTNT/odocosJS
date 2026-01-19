@@ -14,6 +14,14 @@ ok.push(assertEq(undefined)(id(undefined)));
 ok.push(assertEq(undefined)(id()));
 ok.push(assertEq(emptyObject)(id(emptyObject)));
 ok.push(assertEq(emptyArray)(id(emptyArray)));
+ok.push (assertEq(id)(id(id)));
+
+// M (Y combinator)
+const factorial = M(f => n => n <= 1 ? 1 : n * f(f)(n - 1));
+ok.push(assertEq(120)(factorial(5)));
+ok.push(assertEq(1)(factorial(0)));
+ok.push(assertEq(1)(factorial(1)));
+ok.push(assertEq(3628800)(factorial(10)));
 
 // constant
 ok.push(assertEq(1)(constant(1)(2)));

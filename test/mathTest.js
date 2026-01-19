@@ -155,9 +155,9 @@ ok.push(assertEq(true)(not(false)));
 // Vector operations
 const v1 = [1, 2, 3];
 const v2 = [4, 5, 6];
-ok.push(assertEq(32)(dot(v1)(v2))); 
-ok.push(assertEq(32)(dot([4, 5, 6])([1, 2, 3]))); // Commutative
-ok.push(assertEq(0)(dot([1, 0])([0, 1]))); // Orthogonal
+ok.push(assertEq(32)(vecDot(v1)(v2))); 
+ok.push(assertEq(32)(vecDot(v2)(v1))); // Commutative
+ok.push(assertEq(0)(vecDot([1, 0])([0, 1]))); // Orthogonal
 
 // vecAdd
 let v = vecAdd([1, 2, 3])([4, 5, 6]);
@@ -192,72 +192,64 @@ ok.push(assertEq(-2)(v[1]));
 ok.push(assertEq(-3)(v[2]));
 
 // scalarMul
-v = scalarMul(2)([1, 2, 3]);
+v = vecScalarMul(2)([1, 2, 3]);
 ok.push(assertEq(2)(v[0]));
 ok.push(assertEq(4)(v[1]));
 ok.push(assertEq(6)(v[2]));
 
-v = scalarMul(0)([1, 2, 3]);
+v = vecScalarMul(0)([1, 2, 3]);
 ok.push(assertEq(0)(v[0]));
 ok.push(assertEq(0)(v[1]));
 ok.push(assertEq(0)(v[2]));
 
-v = scalarMul(-1)([1, -2, 3]);
+v = vecScalarMul(-1)([1, -2, 3]);
 ok.push(assertEq(-1)(v[0]));
 ok.push(assertEq(2)(v[1]));
 ok.push(assertEq(-3)(v[2]));
 
 // scalarDiv
-v = scalarDiv(2)([2, 4, 6]);
+v = vecScalarDiv(2)([2, 4, 6]);
 ok.push(assertEq(1)(v[0]));
 ok.push(assertEq(2)(v[1]));
 ok.push(assertEq(3)(v[2]));
 
-v = scalarDiv(-2)([2, -4, 6]);
+v = vecScalarDiv(-2)([2, -4, 6]);
 ok.push(assertEq(-1)(v[0]));
 ok.push(assertEq(2)(v[1]));
 ok.push(assertEq(-3)(v[2]));
 
-v = scalarDiv(1)([1, 2, 3]);
+v = vecScalarDiv(1)([1, 2, 3]);
 ok.push(assertEq(1)(v[0]));
 ok.push(assertEq(2)(v[1]));
 ok.push(assertEq(3)(v[2]));
 
-// magnitude
-ok.push(approx(3.741657)(magnitude(v1))); // sqrt(14)
-ok.push(assertEq(0)(magnitude([0, 0, 0])));
-ok.push(assertEq(5)(magnitude([3, 4])));
-ok.push(assertEq(0)(magnitude([])));
+// cross
+const crossA = [1, 0, 0];
+const crossB = [0, 1, 0];
+const crossC = [0, 0, 1];
+ok.push(assertEq(crossC[0])(unwrap(vecCross(crossA)(crossB))[0]));
+ok.push(assertEq(crossC[1])(unwrap(vecCross(crossA)(crossB))[1]));
+ok.push(assertEq(crossC[2])(unwrap(vecCross(crossA)(crossB))[2]));
+ok.push(assertEq(crossA[0])(unwrap(vecCross(crossB)(crossC))[0]));
+ok.push(assertEq(crossA[1])(unwrap(vecCross(crossB)(crossC))[1]));
+ok.push(assertEq(crossA[2])(unwrap(vecCross(crossB)(crossC))[2]));
+ok.push(assertEq(crossB[0])(unwrap(vecCross(crossC)(crossA))[0]));
+ok.push(assertEq(crossB[1])(unwrap(vecCross(crossC)(crossA))[1]));
+ok.push(assertEq(crossB[2])(unwrap(vecCross(crossC)(crossA))[2]));
 
-// normalize non-zero vector
-const vn = normalize([3, 0, 0]);
-ok.push(assertEq(1)(vn[0]));
-ok.push(assertEq(0)(vn[1]));
-ok.push(assertEq(0)(vn[2]));
-ok.push(approx(1)(magnitude(vn))); // normalized length ~ 1
+const crossD = [1, 2, 3];
+const crossE = [4, 5, 6];
+const crossF = [-3, 6, -3];
+ok.push(assertEq(crossF[0])(unwrap(vecCross(crossD)(crossE))[0]));
+ok.push(assertEq(crossF[1])(unwrap(vecCross(crossD)(crossE))[1]));
+ok.push(assertEq(crossF[2])(unwrap(vecCross(crossD)(crossE))[2]));
+ok.push(assertEq(-crossF[0])(unwrap(vecCross(crossE)(crossD))[0]));
+ok.push(assertEq(-crossF[1])(unwrap(vecCross(crossE)(crossD))[1]));
+ok.push(assertEq(-crossF[2])(unwrap(vecCross(crossE)(crossD))[2]));
 
-const vn2 = normalize([3, 4]);
-ok.push(approx(3 / 5)(vn2[0]));
-ok.push(approx(4 / 5)(vn2[1]));
-ok.push(approx(1)(magnitude(vn2)));
-
-// normalize zero and empty vectors: should return same reference
-const vZero = [0, 0, 0];
-const vZeroNorm = normalize(vZero);
-ok.push(assertEq(true)(vZero === vZeroNorm));
-ok.push(assertEq(0)(vZeroNorm[0]));
-
-const vEmpty = [];
-const vEmptyNorm = normalize(vEmpty);
-ok.push(assertEq(true)(vEmpty === vEmptyNorm));
-ok.push(assertEq(0)(vEmptyNorm.length));
-
-// vecCross (3D cross product)
-// a x b for a=[1,2,3], b=[4,5,6] => [-3,6,-3]
-let c = unwrap(vecCross([1, 2, 3])([4, 5, 6]));
-ok.push(assertEq(-3)(c[0]));
-ok.push(assertEq(6)(c[1]));
-ok.push(assertEq(-3)(c[2]));
+ok.push(assertEq('Nothing')(unwrap(vecCross([1,2])([3,4]))));
+ok.push(assertEq('Nothing')(unwrap(vecCross([1,2,3,4])([5,6,7,8]))));
+ok.push(assertEq('Nothing')(unwrap(vecCross([])([]))));
 
 // Parallel vectors: cross should be zero vector
 c = unwrap(vecCross([1, 2, 3])([2, 4, 6]));
@@ -272,10 +264,63 @@ ok.push(assertEq(-c1[0])(c2[0]));
 ok.push(assertEq(-c1[1])(c2[1]));
 ok.push(assertEq(-c1[2])(c2[2]));
 
-// Invalid dimensions should yield Nothing
-ok.push(assertEq('Nothing')(unwrap(vecCross([1, 2])([3, 4]))));
-ok.push(assertEq('Nothing')(unwrap(vecCross([1, 2, 3, 4])([5, 6, 7, 8]))));
-ok.push(assertEq('Nothing')(unwrap(vecCross([])([]))));
+// distance
+ok.push(approx(5)(vecDistance([1, 2, 3])([4, 6, 3]))); // 3-4-5 triangle in XY plane
+ok.push(approx(7.81024968)(vecDistance([1, 2, 3])([4, 6, 9])));
+ok.push(approx(0)(vecDistance([1, 2, 3])([1, 2, 3]))); // same point
+
+// magnitude
+ok.push(approx(3.741657)(vecMagnitude(v1))); // sqrt(14)
+ok.push(assertEq(0)(vecMagnitude([0, 0, 0])));
+ok.push(assertEq(5)(vecMagnitude([3, 4])));
+ok.push(assertEq(0)(vecMagnitude([])));
+
+// normalize non-zero vector
+const vn = vecNormalize([3, 0, 0]);
+ok.push(assertEq(1)(vn[0]));
+ok.push(assertEq(0)(vn[1]));
+ok.push(assertEq(0)(vn[2]));
+ok.push(approx(1)(vecMagnitude(vn))); // normalized length ~ 1
+
+const vn2 = vecNormalize([3, 4]);
+ok.push(approx(3 / 5)(vn2[0]));
+ok.push(approx(4 / 5)(vn2[1]));
+ok.push(approx(1)(vecMagnitude(vn2)));
+
+// normalize zero and empty vectors: should return same reference
+const vZero = [0, 0, 0];
+const vZeroNorm = vecNormalize(vZero);
+ok.push(assertEq(true)(vZero === vZeroNorm));
+ok.push(assertEq(0)(vZeroNorm[0]));
+
+const vEmpty = [];
+const vEmptyNorm = vecNormalize(vEmpty);
+ok.push(assertEq(true)(vEmpty === vEmptyNorm));
+ok.push(assertEq(0)(vEmptyNorm.length));
+
+ok.push(approx(Math.PI / 3)(vecAngle([1, 0, 0])([0.5, Math.sqrt(3)/2, 0]))); // 60 degrees
+ok.push(approx(Math.PI / 2)(vecAngle([1, 0, 0])([0, 1, 0]))); // 90 degrees
+ok.push(approx(0)(vecAngle([1, 0, 0])([2, 0, 0]))); // 0 degrees
+
+// scalar projection
+ok.push(approx([0, 0, 0][0])(vecScalarProjection([1, 2, 3])([0, 0, 0])[0]));
+ok.push(approx([0, 0, 0][1])(vecScalarProjection([1, 2, 3])([0, 0, 0])[1]));
+ok.push(approx([0, 0, 0][2])(vecScalarProjection([1, 2, 3])([0, 0, 0])[2]));
+
+const proj = vecScalarProjection([3, 4, 0])([1, 2, 0]);
+ok.push(approx(2.2)(proj[0]));
+ok.push(approx(4.4)(proj[1]));
+ok.push(approx(0)(proj[2]));
+
+// scalar rejection
+ok.push(approx([1, 2, 3][0])(vecVectorRejection([1, 2, 3])([0, 0, 0])[0]));
+ok.push(approx([1, 2, 3][1])(vecVectorRejection([1, 2, 3])([0, 0, 0])[1]));
+ok.push(approx([1, 2, 3][2])(vecVectorRejection([1, 2, 3])([0, 0, 0])[2]));
+
+const rej = vecVectorRejection([3, 4, 0])([1, 2, 0]);
+ok.push(approx(0.8)(rej[0]));
+ok.push(approx(-0.4)(rej[1]));
+ok.push(approx(0)(rej[2]));
 
 // Matrix operations
 const M1 = [[1, 2], [3, 4]];
@@ -297,8 +342,90 @@ ok.push(assertEq(4)(MIdRes[1][1]));
 
 const M3 = [[1]]; 
 ok.push(assertEq('Nothing')(unwrap(matMul(M1)(M3))));
-
 ok.push(assertEq('Nothing')(unwrap(matMul([])(M3))));
+
+const M4 = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
+const M4T = matTranspose(M4);
+ok.push(assertEq(1)(M4T[0][0]));
+ok.push(assertEq(4)(M4T[0][1]));
+ok.push(assertEq(7)(M4T[0][2]));
+ok.push(assertEq(2)(M4T[1][0]));
+ok.push(assertEq(5)(M4T[1][1]));
+ok.push(assertEq(8)(M4T[1][2]));
+ok.push(assertEq(3)(M4T[2][0]));
+ok.push(assertEq(6)(M4T[2][1]));
+ok.push(assertEq(9)(M4T[2][2]));
+
+const MEmpty = matTranspose([]);
+ok.push(assertEq(0)(MEmpty.length));
+
+// Identity matrix
+const MI = matIdentity(3);
+ok.push(assertEq(1)(MI[0][0]));
+ok.push(assertEq(0)(MI[0][1]));
+ok.push(assertEq(0)(MI[0][2]));
+ok.push(assertEq(0)(MI[1][0]));
+ok.push(assertEq(1)(MI[1][1]));
+ok.push(assertEq(0)(MI[1][2]));
+ok.push(assertEq(0)(MI[2][0]));
+ok.push(assertEq(0)(MI[2][1]));
+ok.push(assertEq(1)(MI[2][2]));
+
+
+// Matrix Addition
+const MA1 = [[1, 2], [3, 4]];
+const MA2 = [[5, 6], [7, 8]];
+const MARes = unwrap(matAdd(MA1)(MA2));
+ok.push(assertEq(6)(MARes[0][0]));
+ok.push(assertEq(8)(MARes[0][1]));
+ok.push(assertEq(10)(MARes[1][0]));
+ok.push(assertEq(12)(MARes[1][1]));
+
+ok.push(assertEq('Nothing')(unwrap(matAdd([[1]])([[1,2]]))));
+ok.push(assertEq('Nothing')(unwrap(matAdd([[1,2]])([[1]]))));
+
+// Matrix Subtraction
+const MSRes = unwrap(matSub(MA2)(MA1));
+ok.push(assertEq(4)(MSRes[0][0]));
+ok.push(assertEq(4)(MSRes[0][1]));
+ok.push(assertEq(4)(MSRes[1][0]));
+ok.push(assertEq(4)(MSRes[1][1]));
+
+ok.push(assertEq('Nothing')(unwrap(matSub([[1]])([[1,2]]))));
+ok.push(assertEq('Nothing')(unwrap(matSub([[1,2]])([[1]]))));
+
+// Matrix Scalar Multiplication
+const MSMRes = matScalarMul(2)(MA1);
+ok.push(assertEq(2)(MSMRes[0][0]));
+ok.push(assertEq(4)(MSMRes[0][1]));
+ok.push(assertEq(6)(MSMRes[1][0]));
+ok.push(assertEq(8)(MSMRes[1][1]));
+
+// Matrix Scalar Division
+const MSDRes = matScalarDiv(2)(MA1);
+ok.push(assertEq(0.5)(MSDRes[0][0]));
+ok.push(assertEq(1)(MSDRes[0][1]));
+ok.push(assertEq(1.5)(MSDRes[1][0]));
+
+// Determinant
+const MD0 = [];
+ok.push(assertEq('Nothing')(unwrap(matDeterminant(MD0))));
+const MD1 = [[5]];
+ok.push(assertEq(5)(unwrap(matDeterminant(MD1))));
+const MD2 = [[1,2],[3,4]];
+ok.push(assertEq(-2)(unwrap(matDeterminant(MD2))));
+const MD3 = [[6,1,1],[4,-2,5],[2,8,7]];
+ok.push(assertEq(-306)(unwrap(matDeterminant(MD3))));
+const MD4 = [[1,0,2,-1],[3,0,0,5],[2,1,4,-3],[1,0,5,0]];
+ok.push(assertEq(30)(unwrap(matDeterminant(MD4))));
+
+ok.push(assertEq('Nothing')(unwrap(matDeterminant([[1,2,3],[4,5,6]]))));
+ok.push(assertEq('Nothing')(unwrap(matDeterminant([]))));
+
+const MTrace = [[1,2,3],[4,5,6],[7,8,9]];
+ok.push(assertEq(15)(unwrap(matTrace(MTrace))));
+ok.push(assertEq('Nothing')(unwrap(matTrace([[1,2,3],[4,5,6]]))));
+ok.push(assertEq('Nothing')(unwrap(matTrace([]))));
 
 // Bitwise
 ok.push(assertEq(1)(band(3)(1)));
