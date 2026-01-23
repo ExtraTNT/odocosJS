@@ -8,7 +8,7 @@ Maybe this lib evolves in something usable, so I try to split it up into modules
 
 - core.js : basic implementations for basic things
 - math.js : basic mathematical implementations
-- list.js : linked list with dynamci generation capabilities and lazy evaluation
+- list.js : linked list with dynamc generation capabilities and lazy evaluation
 
 ## Why this project is messy
 
