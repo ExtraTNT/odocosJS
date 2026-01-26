@@ -14,7 +14,7 @@ const id = x => x;
  * const id2 = M(id) // id2 is a recursive identity function
  * id2 (id2) (id(5)) // 5
  */
-const M = f => f(f);
+const Y = f => f(f);
 
 /**
  * Constant function. Returns a function that ignores its argument and returns x.

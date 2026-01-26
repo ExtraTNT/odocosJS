@@ -38,7 +38,8 @@ If you have found a bug or you have a question:
 - in case you use VScode, there is a config for it
 
 ### Commit Messages
-- merge will be done in squash, so commits can be messy
+- Merge will be done in squash, so commits can be messy
 
 ### Use of AI
 AI tends to fuck things up, it's not recommended to use it.
+Writing tests or documentation is possible, but requires some additional care.
