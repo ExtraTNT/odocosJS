@@ -1,17 +1,91 @@
-//requires ../src/math.js
-//requires test.js
+import {
+  assertEq,
+  assertNotEq,
+  approx,
+  unwrap,
+  printReport,
+} from './test.js';
+import * as math from '../src/math.js';
+
+const {
+  add,
+  mul,
+  sub,
+  div,
+  eq,
+  lt,
+  gt,
+  lte,
+  gte,
+  pow,
+  square,
+  cube,
+  mod,
+  sqrt,
+  abs,
+  log,
+  exp,
+  logx,
+  sin,
+  cos,
+  tan,
+  asin,
+  acos,
+  atan,
+  atan2,
+  degToRad,
+  radToDeg,
+  sinh,
+  cosh,
+  tanh,
+  sum,
+  prod,
+  min,
+  max,
+  nMin,
+  nMax,
+  mean,
+  median,
+  variance,
+  stddev,
+  and,
+  or,
+  xor,
+  nand,
+  nor,
+  not,
+  vecDot,
+  vecAdd,
+  vecSub,
+  vecScalarMul,
+  vecScalarDiv,
+  vecCross,
+  vecDistance,
+  vecMagnitude,
+  vecNormalize,
+  vecAngle,
+  vecScalarProjection,
+  vecVectorRejection,
+  matMul,
+  matIdentity,
+  matTranspose,
+  matAdd,
+  matSub,
+  matScalarMul,
+  matScalarDiv,
+  matDeterminant,
+  matTrace,
+  band,
+  bor,
+  bxor,
+  bnot,
+  shift,
+  rshift,
+  urshift,
+  hash,
+} = math;
+
 const ok = [];
-
-// Helper to unwrap Maybe for testing
-const unwrap = m => m(() => 'Nothing')(x => x);
-
-// Check if value is roughly equal (for float math)
-const approx = expected => actual => {
-  if (typeof expected === 'number' && typeof actual === 'number') {
-    return Math.abs(expected - actual) < 0.00001 ? { pass: true } : { pass: false, expected, actual };
-  }
-  return assertEq(expected)(actual);
-};
 
 // Simple math
 ok.push(assertEq(3)(add(1)(2)));
@@ -106,7 +180,7 @@ ok.push(approx(0)(acos(1)));
 ok.push(approx(Math.PI)(acos(-1)));
 
 ok.push(approx(0)(atan(0)));
-ok.push(approx(Math.PI / 4)(atan(1)));
+ok.push(approx(Math.PI/4)(atan(1)));
 
 ok.push(approx(Math.PI/4)(atan2(1)(1)));
 ok.push(approx(Math.PI)(degToRad(180)));
@@ -116,6 +190,85 @@ ok.push(approx(180)(radToDeg(Math.PI)));
 ok.push(approx(0)(sinh(0)));
 ok.push(approx(1)(cosh(0)));
 ok.push(approx(0)(tanh(0)));
+
+// Aggregate functions
+ok.push(assertEq(6)(sum([1, 2, 3])));
+ok.push(assertEq(0)(sum([])));
+ok.push(assertEq(-6)(sum([-1, -2, -3])));
+ok.push(assertEq(24)(prod([1, 2, 3, 4])));
+ok.push(assertEq(1)(prod([])));
+ok.push(assertEq(24)(prod([-1, 2, -3, 4])));
+ok.push(assertEq(4)(min([9, 6, 4])));
+ok.push(assertEq(4)(max([3, 1, 4])));
+
+ok.push(assertEq(Infinity)(min([])));
+ok.push(assertEq(-Infinity)(max([])));
+
+// nMin / nMax
+let arr = [3, 1, 4, 1, 5];
+let r = nMin(2)(arr);
+ok.push(assertEq(2)(r.length));
+ok.push(assertEq(1)(r[0]));
+ok.push(assertEq(1)(r[1]));
+// original array unchanged
+ok.push(assertEq(3)(arr[0]));
+ok.push(assertEq(1)(arr[1]));
+ok.push(assertEq(4)(arr[2]));
+ok.push(assertEq(1)(arr[3]));
+ok.push(assertEq(5)(arr[4]));
+
+arr = [3, 1, 4];
+r = nMin(5)(arr);
+ok.push(assertEq(3)(r.length));
+ok.push(assertEq(1)(r[0]));
+ok.push(assertEq(3)(r[1]));
+ok.push(assertEq(4)(r[2]));
+
+r = nMin(0)(arr);
+ok.push(assertEq(0)(r.length));
+
+arr = [3, 1, 4, 1, 5];
+r = nMax(2)(arr);
+ok.push(assertEq(2)(r.length));
+ok.push(assertEq(5)(r[0]));
+ok.push(assertEq(4)(r[1]));
+// original array unchanged
+ok.push(assertEq(3)(arr[0]));
+ok.push(assertEq(1)(arr[1]));
+ok.push(assertEq(4)(arr[2]));
+ok.push(assertEq(1)(arr[3]));
+ok.push(assertEq(5)(arr[4]));
+
+arr = [3, 1, 4];
+r = nMax(5)(arr);
+ok.push(assertEq(3)(r.length));
+ok.push(assertEq(4)(r[0]));
+ok.push(assertEq(3)(r[1]));
+ok.push(assertEq(1)(r[2]));
+
+r = nMax(0)(arr);
+ok.push(assertEq(0)(r.length));
+
+// mean
+ok.push(assertEq(2)(unwrap(mean([1, 2, 3]))));
+ok.push(assertEq(0)(unwrap(mean([-1, 1]))));
+ok.push(assertEq('Nothing')(unwrap(mean([]))));
+
+// median
+ok.push(assertEq(3)(unwrap(median([1, 3, 5])))); // odd, sorted
+ok.push(assertEq(3)(unwrap(median([5, 1, 3])))); // odd, unsorted
+ok.push(assertEq(2.5)(unwrap(median([1, 2, 3, 4])))); // even, sorted
+ok.push(assertEq(2.5)(unwrap(median([4, 1, 3, 2])))); // even, unsorted
+ok.push(assertEq('Nothing')(unwrap(median([]))));
+// variance (population)
+ok.push(assertEq(0)(unwrap(variance([1, 1, 1]))));
+ok.push(approx(1.25)(unwrap(variance([1, 2, 3, 4]))));
+ok.push(assertEq('Nothing')(unwrap(variance([]))));
+
+// standard deviation (population)
+ok.push(assertEq(0)(unwrap(stddev([1, 1, 1]))));
+ok.push(approx(Math.sqrt(1.25))(unwrap(stddev([1, 2, 3, 4]))));
+ok.push(assertEq('Nothing')(unwrap(stddev([]))));
 
 // Logical - Full Truth Tables
 // AND
@@ -252,7 +405,7 @@ ok.push(assertEq('Nothing')(unwrap(vecCross([1,2,3,4])([5,6,7,8]))));
 ok.push(assertEq('Nothing')(unwrap(vecCross([])([]))));
 
 // Parallel vectors: cross should be zero vector
-c = unwrap(vecCross([1, 2, 3])([2, 4, 6]));
+const c = unwrap(vecCross([1, 2, 3])([2, 4, 6]));
 ok.push(assertEq(0)(c[0]));
 ok.push(assertEq(0)(c[1]));
 ok.push(assertEq(0)(c[2]));
@@ -442,5 +595,33 @@ ok.push(assertEq(1)(rshift(4)(2))); // 4 >> 2 = 1
 ok.push(assertEq(1)(urshift(4)(2))); // 4 >>> 2 = 1
 ok.push(assertEq(-1)(rshift(-4)(2)));
 ok.push(assertEq(1073741823)(urshift(-4)(2)));
+
+// Hash
+const hashStrings = [
+  'hello',
+  'world',
+  'test',
+  'odocosJS',
+  'hash function',
+  '',
+  '1234567890',
+  '1',
+  '2',
+  '3',
+  'a',
+  'b',
+  'c',
+  '07',
+  'o7',
+  '!@#$%^&*()',
+  'function',
+  'longer string to test the hash function robustness'];
+hashStrings.forEach(s => {
+  const h = hash(s);
+  ok.push(assertEq(h)(hash(s))); // same input, same hash
+  hashStrings.filter(t => t !== s).forEach(t => {
+    ok.push(assertNotEq(h)(hash(t))); // different input, different hash
+  });
+});
 
 printReport(ok);

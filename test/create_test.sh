@@ -21,9 +21,8 @@ cat > "$TEST_DIR/$NAME.html" <<EOF
         <title>${NAME} Tests</title>
     </head>
     <body>
-        <script src="test.js"></script>
-        <script src="$SRC_DIR/$NAME.js"></script>
-        <script src="${NAME}Test.js"></script>
+        <script type="module" src="${NAME}Test.js"></script>
+        <div id="test-results"></div>
     </body>
 </html>
 EOF
@@ -32,8 +31,8 @@ echo "Created $TEST_DIR/$NAME.html"
 
 if [ ! -f "$TEST_DIR/${NAME}Test.js" ]; then
   cat > "$TEST_DIR/${NAME}Test.js" <<EOF
-//requires $SRC_DIR/$NAME.js
-//requires test.js
+import * as $NAME from '$SRC_DIR/$NAME.js';
+import { assertEq, printReport } from './test.js';
 const ok = [];
 
 // Example test
@@ -44,4 +43,25 @@ EOF
   echo "Created $TEST_DIR/${NAME}Test.js"
 else
   echo "$TEST_DIR/${NAME}Test.js already exists, skipping."
+fi
+
+TEST_ALL="$TEST_DIR/testAll.html"
+if [ -f "$TEST_ALL" ]; then
+  ENTRY="        { name: '$NAME', file: '$NAME.html' },"
+  if grep -Fq "$ENTRY" "$TEST_ALL"; then
+    echo "$TEST_ALL already lists $NAME."
+  else
+    TMP_FILE=$(mktemp)
+    awk -v entry="$ENTRY" '
+      BEGIN { inserted = 0 }
+      { print $0 }
+      !inserted && /const suites = \[/ {
+        print entry
+        inserted = 1
+      }
+    ' "$TEST_ALL" > "$TMP_FILE" && mv "$TMP_FILE" "$TEST_ALL"
+    echo "Added $NAME to $TEST_ALL"
+  fi
+else
+  echo "$TEST_ALL not found; skipping auto-insert."
 fi

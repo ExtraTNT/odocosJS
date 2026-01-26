@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>All Tests</title>
+    <style>
+      .suite {
+        margin-bottom: 1.5rem;
+      }
+      .suite h2 {
+        margin: 0;
+        font-size: 1rem;
+      }
+      .status {
+        font-size: 1rem;
+      }
+      iframe {
+        width: 100%;
+        height: fit-content;
+        border: 1px solid #ddd;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>All Tests</h1>
+    <div id="tests"></div>
+
+    <script>
+      const suites = [
+        { name: 'dbg', file: 'dbg.html' },
+        { name: 'memo', file: 'memo.html' },
+        { name: 'extra', file: 'extra.html' },
+        { name: 'Core', file: 'core.html' },
+        { name: 'Math', file: 'math.html' },
+        { name: 'List', file: 'list.html' },
+        { name: 'prototypeUtils', file: 'prototypeUtils.html' },
+        { name: 'Task', file: 'Task.html' },
+      ];
+
+      const mount = document.getElementById('tests');
+
+      suites.forEach(({ name, file }) => {
+        const section = document.createElement('section');
+        section.className = 'suite';
+
+        const title = document.createElement('h2');
+        title.textContent = name;
+
+        const status = document.createElement('div');
+        status.className = 'status';
+        status.textContent = 'Loading…';
+
+        const frame = document.createElement('iframe');
+        frame.src = file;
+        frame.onload = () => { status.textContent = 'Loaded'; };
+        frame.onerror = () => {
+            status.textContent = 'Failed to load';
+            status.style.color = 'red';
+        };
+
+        section.appendChild(title);
+        section.appendChild(status);
+        section.appendChild(frame);
+        mount.appendChild(section);
+      });
+    </script>
+  </body>
+</html>
