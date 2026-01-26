@@ -56,7 +56,6 @@ const Pair = x => y => f => f(x)(y);
  * @example Left(2)(x => x + 1)(x => x * 2) // 3
  */
 const Left = x => f => _ => f(x);
-
 /**
  * Right. Represents the Right case of a Church-encoded Either.
  * @param {*} y - The value.
@@ -134,3 +133,22 @@ const flip = f => a => b => f(b)(a);
  * @example toMaybe(null) // Nothing
  */
 const toMaybe = x => x === null || x === undefined || Number.isNaN(x) || x === Nothing ? Nothing : Just(x);
+
+export {
+  id,
+  Y,
+  constant,
+  fst,
+  snd,
+  Pair,
+  Left,
+  Right,
+  either,
+  Just,
+  Nothing,
+  pipe,
+  compose,
+  curry,
+  flip,
+  toMaybe,
+};

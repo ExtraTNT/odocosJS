@@ -1,4 +1,4 @@
-//requires core.js
+import { Just, Nothing, id, flip } from './core.js';
 
 // Simple math
 
@@ -258,6 +258,117 @@ const acosh = Math.acosh;
  */
 const atanh = Math.atanh;
 
+// Aggregate functions
+/**
+ * Sum of an array of numbers.
+ * @param {number[]} xs - Array of numbers.
+ * @returns {number} Sum of elements.
+ * @example sum([1, 2, 3]) // 6
+ */
+const sum = xs => xs.reduce((a, b) => add(a)(b), 0);
+
+/**
+ * Product of an array of numbers.
+ * @param {number[]} xs - Array of numbers.
+ * @returns {number} Product of elements.
+ * @example prod([1, 2, 3, 4]) // 24
+ */
+const prod = xs => xs.reduce((a, b) => mul(a)(b), 1);
+
+/**
+ * Minimum of an array of numbers.
+ * @param {number[]} xs - Array of numbers.
+ * @returns {number} Minimum element (Infinity for empty arrays).
+ * @example min([3, 1, 4]) // 1
+ */
+const min = xs => xs.reduce((a, b) => lt(a)(b) ? a : b, Infinity);
+/**
+ * Smallest N elements of an array.
+ * Returns a new array containing up to the N smallest values in ascending order.
+ * The original array is not modified.
+ * @param {number} n - Number of smallest elements to take.
+ * @returns {function} Function taking an array of numbers.
+ * @example nMin(2)([3, 1, 4]) // [1, 3]
+ * @example nMin(5)([3, 1, 4]) // [1, 3, 4]
+ * @example nMin(0)([3, 1, 4]) // []
+ */
+const nMin = n => xs => xs.slice().sort((a, b) => a - b).slice(0, n);
+
+
+/**
+ * Maximum of an array of numbers.
+ * @param {number[]} xs - Array of numbers.
+ * @returns {number} Maximum element (-Infinity for empty arrays).
+ * @example max([3, 1, 4]) // 4
+ */
+const max = xs => xs.reduce((a, b) => gt(a)(b) ? a : b, -Infinity);
+/**
+ * Largest N elements of an array.
+ * Returns a new array containing up to the N largest values in descending order.
+ * The original array is not modified.
+ * @param {number} n - Number of largest elements to take.
+ * @returns {function} Function taking an array of numbers.
+ * @example nMax(2)([3, 1, 4]) // [4, 3]
+ * @example nMax(5)([3, 1, 4]) // [4, 3, 1]
+ * @example nMax(0)([3, 1, 4]) // []
+ */
+const nMax = n => xs => xs.slice().sort((a, b) => b - a).slice(0, n);
+
+/**
+ * Arithmetic mean (average) of an array of numbers.
+ * Returns NaN for an empty array.
+ * @param {number[]} xs - Array of numbers.
+ * @returns {Just<number> | Nothing} Mean value.
+ * @example mean([1, 2, 3]) // Just(2)
+ */
+const mean = xs => xs.length === 0 ? Nothing : Just(div(sum(xs))(xs.length));
+
+/**
+ * Median of an array of numbers.
+ * For even length, returns the average of the two middle values.
+ * Returns NaN for an empty array.
+ * @param {number[]} xs - Array of numbers.
+ * @returns {Just<number> | Nothing} Median value.
+ * @example median([3, 1, 4]) // Just(3)
+ * @example median([1, 2, 3, 4]) // Just(2.5)
+ */
+const median = xs => {
+  const sorted = xs.slice().sort((a, b) => a - b);
+  const len = sorted.length;
+
+  if (len === 0) {
+    return Nothing;
+  }
+
+  const mid = Math.floor(len / 2);
+
+  return (len % 2 === 0) ?
+    Just(div(add(sorted[mid - 1])(sorted[mid]))(2))
+    : Just(sorted[mid]);
+};
+
+/**
+ * Population variance of an array of numbers.
+ * Uses divisor N (not N-1). Returns NaN for an empty array.
+ * @param {number[]} xs - Array of numbers.
+ * @returns {Just<number> | Nothing} Variance.
+ * @example variance([1, 2, 3, 4]) // Just(1.25)
+ */
+const variance = xs => (xs.length === 0)?
+  Nothing
+  : mean(xs)(
+    () => Nothing)(
+    m => mean(xs.map(x => square(sub(x)(m)))));
+
+/**
+ * Population standard deviation of an array of numbers.
+ * Defined as sqrt(variance(xs)). Returns NaN for an empty array.
+ * @param {number[]} xs - Array of numbers.
+ * @returns {Just<number> | Nothing} Standard deviation.
+ * @example stddev([1, 2, 3, 4]) // Just(~1.1180)
+ */
+const stddev = xs => variance(xs)(() => Nothing)(v => Just(sqrt(v)));
+
 // Logical
 
 /**
@@ -437,6 +548,16 @@ const vecVectorProjection = a => b => {
 const vecVectorRejection = a => b => 
   vecSub(a)(vecVectorProjection(a)(b));
 
+/**
+ * Transform a vector by a matrix.
+ * @param {number[][]} m - Matrix.
+ * @returns {function} Function taking vector v and returning a Maybe vector.
+ * @example vecTransform([[1, 0], [0, 1]])([3, 4]) // Just([3, 4])
+ */
+const vecTransform = m => v =>
+  m.length === 0 || m[0].length !== v.length ?
+    Nothing
+    : Just(m.map(row => vecDot(row)(v)));
 
 // Matrix operations
 
@@ -450,7 +571,58 @@ const matIdentity = n =>
   Array.from({ length: n }, (_,y) =>
     Array.from({ length: n }, (_,x) =>
       (y == x)? 1 : 0));
+/**
+ * Calculates the inverse of a matrix with size n x n
+ * Detects uninversable matrixes and returns Nothing in this case
+ * On inversable it returns Just(inversed matrix)
+ * @param {number[][]} - Matrix to inverse
+ * @returns {Just(number[][]) | Nothing} - Inversed matrix
+ * @example matInverse([[1,2,3],[4,5,4],[7,7,9]]) // [[-0.85,-0.15,0.35],[0.4,0.6,-0.4],[0.35,-0.35,0.15]]
+ */
+const matInverse = A => {
+  const n = A.length;
+  if (n === 0 || A[0].length !== n || matDeterminant(A)(_ => 0)(id) === 0) return Nothing;
 
+  // Create augmented matrix [A | I]
+  const matId = matIdentity(n);
+  const AI = A.map((row, i) => [...row, ...matId[i]]);
+  // Perform Gaussian elimination
+  for (let i = 0; i < n; i++) {
+    // Find pivot
+    let maxRow = i;
+    for (let k = i + 1; k < n; k++) {
+      if (gt(abs(AI[k][i]))(abs(AI[maxRow][i]))) {
+        maxRow = k;
+      }
+    }
+    if (AI[maxRow][i] === 0) {
+      return Nothing; // Singular matrix
+    }
+    // Swap rows
+    [AI[i], AI[maxRow]] = [AI[maxRow], AI[i]];
+
+    
+    // Normalize pivot row
+    const pivot = AI[i][i];
+    for (let j = 0; j < 2 * n; j++) {
+      AI[i][j] = div(AI[i][j])(pivot);
+    }
+
+    // Eliminate other rows
+    for (let k = 0; k < n; k++) {
+      if (k !== i) {
+        const factor = AI[k][i];
+        for (let j = 0; j < 2 * n; j++) {
+          AI[k][j] = sub(AI[k][j])(mul(factor)(AI[i][j]));
+        }
+      }
+    }
+  }
+
+  // Extract inverse matrix
+  const Ainv = AI.map(row => row.slice(n));
+  return Just(Ainv);
+};
 /**
  * Transpose a matrix.
  * @param {number[][]} m - Matrix.
@@ -525,9 +697,10 @@ const matDeterminant = A => (A.length === 0 || A.length !== A[0].length) ?
       : Just(A[0].reduce((det, a0j, j) =>
         add(det)
         (mul((mod(j)(2) === 0) ? 1 : -1)
-        (mul(a0j)(unwrap(matDeterminant(
-          A.slice(1).map(row => row.filter((_, colIndex) => colIndex !== j))))))),
-      0));
+        (mul(a0j)(matDeterminant(A.slice(1).map(row => row.filter((_, colIndex) => colIndex !== j)))
+        (_ => Nothing)
+        (id))))
+      ,0));
 
 /**
  * Matrix multiplication A * B.
@@ -622,3 +795,94 @@ const rshift = a => b => a >> b;
  */
 const urshift = a => b => a >>> b;
 
+/**
+ * Hashes a string
+ */
+const hash = s =>  Math.abs(s.split('').reduce((xs, x) => add(x.charCodeAt(0))(add((shift(xs)(6)))((sub(shift(xs)(16)))(xs))), 0)).toString(16);
+
+
+
+export {
+  add,
+  mul,
+  sub,
+  div,
+  eq,
+  lt,
+  gt,
+  lte,
+  gte,
+  pow,
+  square,
+  cube,
+  mod,
+  sqrt,
+  abs,
+  log,
+  exp,
+  logx,
+  sin,
+  cos,
+  tan,
+  asin,
+  acos,
+  atan,
+  atan2,
+  degToRad,
+  radToDeg,
+  sinh,
+  cosh,
+  tanh,
+  asinh,
+  acosh,
+  atanh,
+  sum,
+  prod,
+  min,
+  nMin,
+  max,
+  nMax,
+  mean,
+  median,
+  variance,
+  stddev,
+  and,
+  or,
+  xor,
+  not,
+  nand,
+  nor,
+  vecDot,
+  vecAdd,
+  vecSub,
+  vecScalarMul,
+  vecScalarDiv,
+  vecCross,
+  vecDistance,
+  vecMagnitude,
+  vecNormalize,
+  vecAngle,
+  vecScalarProjection,
+  vecVectorProjection,
+  vecVectorRejection,
+  vecTransform,
+  matIdentity,
+  matInverse,
+  matTranspose,
+  matAdd,
+  matSub,
+  matScalarMul,
+  matScalarDiv,
+  matDeterminant,
+  matMul,
+  matDot,
+  matTrace,
+  band,
+  bor,
+  bxor,
+  bnot,
+  shift,
+  rshift,
+  urshift,
+  hash,
+};
