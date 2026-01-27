@@ -575,6 +575,9 @@ const matIdentity = n =>
  * Calculates the inverse of a matrix with size n x n
  * Detects uninversable matrixes and returns Nothing in this case
  * On inversable it returns Just(inversed matrix)
+ * 
+ * thx to Igor for deciding to play mtg with my room m8 the day i was implementing this 
+ * 
  * @param {number[][]} - Matrix to inverse
  * @returns {Just(number[][]) | Nothing} - Inversed matrix
  * @example matInverse([[1,2,3],[4,5,4],[7,7,9]]) // [[-0.85,-0.15,0.35],[0.4,0.6,-0.4],[0.35,-0.35,0.15]]
