@@ -802,8 +802,6 @@ const urshift = a => b => a >>> b;
  */
 const hash = s =>  Math.abs(s.split('').reduce((xs, x) => add(x.charCodeAt(0))(add((shift(xs)(6)))((sub(shift(xs)(16)))(xs))), 0)).toString(16);
 
-
-
 export {
   add,
   mul,
