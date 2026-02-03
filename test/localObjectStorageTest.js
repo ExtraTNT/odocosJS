@@ -1,7 +1,6 @@
 import { set, get, remove, clear, getAll, getKeys, getItems } from '../src/localObjectStorage.js';
 import { assertEq, printReport } from './test.js';
 
-
 const ok = [];
 // initial clear
 clear();
@@ -54,7 +53,6 @@ ok.push(assertEq(null)(get('objKey')));
 // clear should remove all items
 clear();
 ok.push(assertEq(0)(getKeys().length));
-
 
 printReport(ok);
 

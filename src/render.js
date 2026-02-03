@@ -1,3 +1,4 @@
+//TODO: add support for event listeners and proxy props
 
 /**
  * virtual node
