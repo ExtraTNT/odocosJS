@@ -32,11 +32,14 @@ If you have found a bug or you have a question:
 - function names should be clear (use haskell names as a reference)
 - the use of var is to be avoided at all cost, let is also to be avoided
 - if statements are to be avoided and instead replaced by `const x = y? 0:1;`
-- reduce if possible, so `(x => x + 1)(5);` becomse `6;`, `const f = x => g(x);` becomes `const f = g;`
-- use `;` and don't reformat documents, in order to keep the history clear
+- reduce if possible, so `(x => x + 1)(5);` becomes `6;`, `const f = x => g(x);` becomes `const f = g;`
+- use `;`
+- don't use prettier, but instead there is a eslint config `npm install -g eslint` to install eslint and `eslint --fix` to run it.
+- in case you use VScode, there is a config for it
 
 ### Commit Messages
-- merge will be done in squash, so commits can be messy
+- Merge will be done in squash, so commits can be messy
 
 ### Use of AI
 AI tends to fuck things up, it's not recommended to use it.
+Writing tests or documentation is possible, but requires some additional care.
