@@ -316,7 +316,7 @@ const nMax = n => xs => xs.slice().sort((a, b) => b - a).slice(0, n);
 
 /**
  * Arithmetic mean (average) of an array of numbers.
- * Returns NaN for an empty array.
+ * Returns Nothing for an empty array.
  * @param {number[]} xs - Array of numbers.
  * @returns {Just<number> | Nothing} Mean value.
  * @example mean([1, 2, 3]) // Just(2)
@@ -326,7 +326,7 @@ const mean = xs => xs.length === 0 ? Nothing : Just(div(sum(xs))(xs.length));
 /**
  * Median of an array of numbers.
  * For even length, returns the average of the two middle values.
- * Returns NaN for an empty array.
+ * Returns Nothing for an empty array.
  * @param {number[]} xs - Array of numbers.
  * @returns {Just<number> | Nothing} Median value.
  * @example median([3, 1, 4]) // Just(3)
@@ -349,7 +349,7 @@ const median = xs => {
 
 /**
  * Population variance of an array of numbers.
- * Uses divisor N (not N-1). Returns NaN for an empty array.
+ * Uses divisor N (not N-1). Returns Nothing for an empty array.
  * @param {number[]} xs - Array of numbers.
  * @returns {Just<number> | Nothing} Variance.
  * @example variance([1, 2, 3, 4]) // Just(1.25)
@@ -362,7 +362,7 @@ const variance = xs => (xs.length === 0)?
 
 /**
  * Population standard deviation of an array of numbers.
- * Defined as sqrt(variance(xs)). Returns NaN for an empty array.
+ * Defined as sqrt(variance(xs)). Returns Nothing for an empty array.
  * @param {number[]} xs - Array of numbers.
  * @returns {Just<number> | Nothing} Standard deviation.
  * @example stddev([1, 2, 3, 4]) // Just(~1.1180)
@@ -598,7 +598,7 @@ const matInverse = A => {
         maxRow = k;
       }
     }
-    if (AI[maxRow][i] === 0) {
+    if (abs(AI[maxRow][i]) < 0.00000000000000005) {
       return Nothing; // Singular matrix
     }
     // Swap rows
@@ -623,8 +623,7 @@ const matInverse = A => {
   }
 
   // Extract inverse matrix
-  const Ainv = AI.map(row => row.slice(n));
-  return Just(Ainv);
+  return Just(AI.map(row => row.slice(n)));
 };
 /**
  * Transpose a matrix.

@@ -14,6 +14,12 @@ Maybe this lib evolves in something usable, so I try to split it up into modules
 - memo.js  : memo functionality to increase performance of pure functions at the cost of ram usage
 - prototypeUtils.js : utils directly on the prototype
 - Task.js  : Task monad
+ - httpUtils.js : small HTTP helpers (e.g. mapToQuery)
+ - iterator.js  : iterator helpers for list-like structures
+ - Observable.js : tiny observable wrapper with onChange / getValue / setValue
+ - render.js : minimal virtual-DOM style renderer and vnode helpers
+ - scheduler.js : sequential async task scheduler and lazy DataFlowVariable
+ - tree.js : Church-encoded binary tree with Haskell-style type docs
 
 ## Why this project is messy
 

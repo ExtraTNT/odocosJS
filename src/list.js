@@ -221,6 +221,8 @@ const groupBy = keyFn => list => {
   return cons(group)(groupBy(keyFn)(rest));
 };
 
+const toIterator = list => undefined;
+
 export {
   emptyList,
   cons,
@@ -242,4 +244,5 @@ export {
   takeWhile,
   dropWhile,
   groupBy,
+  toIterator,
 };

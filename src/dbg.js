@@ -54,8 +54,8 @@ const dbgResolveOrDefault = f => d => (...args) => {
     const result = f(...args);
     console.log('dbg: function returned', result);
     return result;
-  } catch (_e) {
-    console.log('dbg: function threw, returning default', d);
+  } catch (e) {
+    console.log('dbg: function threw, returning default', d, e.message);
     return d;
   }
 };

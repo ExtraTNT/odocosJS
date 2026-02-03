@@ -53,7 +53,7 @@ const view = state =>
 
       p({})([`You typed: ${state.text}`]),
       psp({})(['i\'m partially styled']),
-      psp({ onclick: () => setState({ count: state.count + 1 }) })(['Click me']),
+      psp({ onclick: () => alert('Clicked!', 'You clicked the styled paragraph!') })(['Click me']),
     ]),
   ]);
 
