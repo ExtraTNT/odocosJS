@@ -18,6 +18,11 @@ const {
   compose,
   curry,
   flip,
+  bind,
+  fromMaybe,
+  orElse,
+  guard,
+  lift,
 } = core;
 
 const ok = [];
@@ -175,5 +180,48 @@ const justFive = Just(5);
 m = unwrapMaybe(toMaybe(justFive));
 ok.push(assertEq('Just')(m.tag));
 ok.push(assertEq(justFive)(m.value));
+
+// bind
+ok.push(assertEq(6)(bind(Just(5))(x => Just(x + 1))(() => 0)(id)));
+ok.push(assertEq(undefined)(bind(Nothing)(x => Just(x + 1))(() => undefined)(id)));
+ok.push(assertEq(1)(bind(Just(0))(x => Just(x + 1))(() => 0)(id)));
+ok.push(assertEq(undefined)(bind(Just(5))(_ => Nothing)(() => undefined)(id)));
+
+// bind chaining
+ok.push(assertEq(4)(bind(Just(1))(x => bind(Just(x + 1))(y => Just(y * 2)))(() => 0)(id)));
+ok.push(assertEq(undefined)(bind(Nothing)(x => bind(Just(x + 1))(y => Just(y * 2)))(() => undefined)(id)));
+ok.push(assertEq(undefined)(bind(Just(1))(x => bind(Nothing)(y => Just(y * 2)))(() => undefined)(id)));
+
+// fromMaybe
+ok.push(assertEq(5)(fromMaybe(0)(Just(5))));
+ok.push(assertEq(0)(fromMaybe(0)(Nothing)));
+ok.push(assertEq(99)(fromMaybe(99)(Nothing)));
+ok.push(assertEq(null)(fromMaybe(null)(Just(null))));
+ok.push(assertEq(0)(fromMaybe(10)(Just(0))));
+ok.push(assertEq('')(fromMaybe('default')(Just(''))));
+ok.push(assertEq('default')(fromMaybe('default')(Nothing)));
+
+// orElse
+ok.push(assertEq(1)(orElse(Just(1))(Just(5))(() => 0)(id)));
+ok.push(assertEq(5)(orElse(Nothing)(Just(5))(() => 0)(id)));
+ok.push(assertEq(undefined)(orElse(Nothing)(Nothing)(() => undefined)(id)));
+ok.push(assertEq(1)(orElse(Just(1))(Nothing)(() => 0)(id)));
+ok.push(assertEq(0)(orElse(Just(0))(Just(10))(() => 99)(id)));
+
+// guard
+ok.push(assertEq(5)(guard(true)(5)(() => 0)(id)));
+ok.push(assertEq(undefined)(guard(false)(5)(() => undefined)(id)));
+ok.push(assertEq(10)(guard(1 < 2)(10)(() => 0)(id)));
+ok.push(assertEq(undefined)(guard(1 > 2)(10)(() => undefined)(id)));
+ok.push(assertEq(null)(guard(true)(null)(() => 0)(id)));
+ok.push(assertEq(undefined)(guard(false)(null)(() => undefined)(id)));
+
+// lift
+const add = a => b => a + b;
+ok.push(assertEq(3)(fromMaybe(0)(lift(add)(Just(1))(Just(2)))));
+ok.push(assertEq(0)(fromMaybe(0)(lift(add)(Just(1))(Nothing))));
+ok.push(assertEq(0)(fromMaybe(0)(lift(add)(Nothing)(Just(2)))));
+ok.push(assertEq(0)(fromMaybe(0)(lift(add)(Nothing)(Nothing))));
+ok.push(assertEq(12)(fromMaybe(0)(lift(a => b => a * b)(Just(3))(Just(4)))));
 
 printReport(ok);

@@ -134,6 +134,62 @@ const flip = f => a => b => f(b)(a);
  */
 const toMaybe = x => x === null || x === undefined || Number.isNaN(x) || x === Nothing ? Nothing : Just(x);
 
+/**
+ * bind. Chains a Maybe value with a function returning a Maybe.
+ * Bind for Maybe: (>>=) 
+ * @param {function} ma - The Maybe value.
+ * @param {function} f - The function to apply if Just.
+ * @returns {function} A new Maybe value.
+ * @example bind(Just(5))(x => Just(x + 1)) // Just(6)
+ * @example bind(Nothing)(x => Just(x + 1)) // Nothing
+ * @example bind(Just(1))(x => bind(Just(x + 1))(y => Just(y * 2))) // Just(6)
+ * @haskell bind :: Maybe a -> (a -> Maybe b) -> Maybe b
+ */
+const bind = ma => f => ma(_ => Nothing)(f);
+
+/**
+ * fromMaybe. Extracts the value from a Maybe, providing a default if Nothing.
+ * @param {*} d - The default value.
+ * @param {function} m - The Maybe value.
+ * @returns {*} The extracted value or the default.
+ * @example fromMaybe(0)(Just(5)) // 5
+ * @example fromMaybe(0)(Nothing) // 0
+ * @haskell fromMaybe :: a -> Maybe a -> a
+ */
+const fromMaybe = d => m => m(_ => d)(id);
+
+/**
+ * orElse. Provides an alternative Maybe value if the first is Nothing.
+ * @param {function} ma - The primary Maybe value.
+ * @param {function} mb - The alternative Maybe value.
+ * @returns {function} The resulting Maybe value.
+ * @example orElse(Nothing)(Just(5)) // Just(5)
+ * @example orElse(Just(1))(Just(5)) // Just(1)
+ * @haskell orElse :: Maybe a -> Maybe a -> Maybe a
+ */
+const orElse = ma => mb => ma(_ => mb)(x => Just(x));
+
+/**
+ * guard. Creates a Maybe value based on a condition.
+ * @param {boolean} c - The condition.
+ * @returns {function} A function that takes a value and returns Just(value) if the condition is true, otherwise Nothing.
+ * @example guard(true)(5) // Just(5)
+ * @example guard(false)(5) // Nothing
+ * @haskell guard :: Bool -> a -> Maybe a
+ */
+const guard = c => v => c ? Just(v) : Nothing;
+
+/**
+ * lift. Lifts a curried function to operate on Maybe values.
+ * @param {function} f - The curried function to lift (a -> b -> c).
+ * @returns {function} A function that takes two Maybe values and returns a Maybe value.
+ * @example lift(a => b => a + b)(Just(1))(Just(2)) // Just(3)
+ * @example lift(a => b => a + b)(Just(1))(Nothing) // Nothing
+ * @haskell lift :: (a -> b -> c) -> Maybe a -> Maybe b -> Maybe c
+ */
+const lift = f => a => b => bind(a)(x => bind(b)(y => Just(f(x)(y))));
+
+
 export {
   id,
   Y,
@@ -151,4 +207,9 @@ export {
   curry,
   flip,
   toMaybe,
+  bind,
+  fromMaybe,
+  orElse,
+  guard,
+  lift,
 };
