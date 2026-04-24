@@ -27,6 +27,8 @@ const createNode = vnode => {
   for (const k in vnode.props)
     node[k] = vnode.props[k];
 
+  if(typeof(vnode.children.map) !== 'function') console.error("Can't render vnode due to invalid children", vnode);
+
   vnode.children
     .map(createNode)
     .forEach(c => node.appendChild(c));
