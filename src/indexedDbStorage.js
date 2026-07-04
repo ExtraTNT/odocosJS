@@ -1,8 +1,8 @@
 /**
- * indexedDbStorage — curried key/value store over IndexedDB.
+ * indexedDbStorage - curried key/value store over IndexedDB.
  *
  * Same intent as localObjectStorage but every operation is async (returns a
- * Promise) and values can be any structured-cloneable type — strings, Blobs,
+ * Promise) and values can be any structured-cloneable type - strings, Blobs,
  * ArrayBuffers, plain objects. Good fit for anything that would blow past
  * localStorage's ~5 MB per-origin quota (e.g. audio / video / large images).
  *
@@ -57,7 +57,7 @@ const _run = (storeName, mode) => fn => db => new Promise((resolve, reject) => {
  *   const store = openDb('dervo-game-editor')('asset-blobs');
  *
  * Re-calling `openDb(...)(...)` with the same names returns a NEW factory
- * with its own cached connection — callers wanting a singleton should
+ * with its own cached connection - callers wanting a singleton should
  * stash the result themselves.
  *
  * @param {string} dbName
